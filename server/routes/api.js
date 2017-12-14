@@ -5,25 +5,30 @@ var router = express.Router()
 var mongoose = require('mongoose')
 
 //Conectamos a la BD
-mongoose.connect("mongodb://localhost/vinos")
+mongoose.connect("mongodb://root:bebote34@ds137256.mlab.com:37256/heroku_l1zxh974/vinos")
 
-var vinosSchema = { nombre: String, uva: String, descripcion: String}
+var vinosSchema = { nombre: String, uva: String }
 
 
 //Inicializar el modelo en la BD
 var Vinos = mongoose.model('vinos', vinosSchema)
 
+//CORS
+var cors = require('cors')
+
+
+
 //Definir las rutas
 
-router.get('/', obtenerTodos)
+router.get('/', cors(), obtenerTodos)
 
-router.get('/:id', obtenerId)
+router.get('/:id', cors(), obtenerId)
 
-router.post('/', agregarVino)
+router.post('/', cors(), agregarVino)
 
-router.put('/:id', actualizarId)
+router.put('/:id', cors(), actualizarId)
 
-router.delete('/:id', borrarId)
+router.delete('/:id', cors(), borrarId)
 
 
 
@@ -52,8 +57,7 @@ function agregarVino( req, res, next )
 	var infoOrdenada = 
 	{ 
 		nombre: req.body.nombre, 
-		uva: req.body.uva, 
-		descripcion: req.body.descripcion 
+		uva: req.body.uva
 	}
 
 	var nuevoVino = new Vinos(infoOrdenada)
@@ -77,9 +81,10 @@ function actualizarId( req, res, next )
 	var infoAcutalizada = 
 	{ 
 		nombre: req.body.nombre, 
-		uva: req.body.uva, 
-		descripcion: req.body.descripcion 
+		uva: req.body.uva
 	}
+
+
 
 	Vinos.update( { "_id" : req.params.id }, infoAcutalizada, function( error )
 	{
@@ -89,7 +94,7 @@ function actualizarId( req, res, next )
 		}
 		else
 		{
-			res.send( JSON.stringify( infoOrdenada ) )
+			res.send( JSON.stringify( infoAcutalizada ) )
 		}		
 	})	
 }

@@ -4,43 +4,96 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('server:server');
-var http = require('http');
+var app = require('../app')
+var debug = require('debug')('server:server')
+var http = require('http')
+var fs = require('fs')
+
+
+// var key = fs.readFileSync('encryption/private.key');
+// var cert = fs.readFileSync( 'encryption/primary.crt' );
+// var ca = fs.readFileSync( 'encryption/intermediate.crt' );
+
+
+// var options = {
+//   key: key,
+//   cert: cert,
+//   ca: ca
+// }
+
+
+
+
+
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort(process.env.PORT || '3000')
+app.set('port', port)
 
 /**
  * Create HTTP server.
+ * var server = http.createServer(app)
  */
-
-var server = http.createServer(app);
-
+// var https = require('https')
+// var server = https.createServer(options, app)
+var server = http.createServer(app)
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.listen(port)
+server.on('error', onError)
+server.on('listening', onListening)
 
 
 
 
+/**
+** SOCKET 
+**/
+
+var socketio = require('socket.io')
+var websocket = socketio(server)
+
+
+
+//Escuchamos el evento de una nueva conexion
+websocket.on( 'connection', (socket) => {
+  console.log("Nueva conexion escuchada")
+
+  //Creamos los eventos que necesitemos
+  //Cada evento, tiene un nombre, puede recibir n parametros
+  // y debe mandar a un callback function socket, mas los parametros en cuestion
+  socket.on('someChange', () =>  reportChange( socket ) )
+
+
+
+})
 
 
 
 
+function reportChange( socket )
+{
+  //Socket, es el objeto que nos permite emitir eventos hacia el servidor
+  //De esta manera, con el metodo broadcast, reportamos cosas del servidor al cliente
+
+  //Emit, en primer lugar, recibe el nombre del evento que desea emitir
+  //y ademas recibe un arreglo de informacion que puede reportar a los clientes
+  //Recordar que en el cliente se debe ESPECIFICAR QUE EVENTO ESCUCHAR
+  socket.broadcast.emit('someChange')  
+  socket.emit('someChange')  
 
 
+}
 
 
-
+/**
+** SOCKET 
+**/
 
 
 
